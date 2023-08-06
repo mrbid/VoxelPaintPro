@@ -26,6 +26,8 @@ description: |
 
   Middle Mouse Click & Drag or Mouse4 & Drag (or Q and drag) to select area.
   V = Copies the selected nodes to the currently pointed position, the point you started the selection from is the point you will copy from at the new pointed location.
+  T = Copies the selected nodes to the currently pointed position, but each time you press T it will iterate one of 24 rotations.
+  Y = Shoots an array of the selected nodes in the direction you are facing in 24 different rotations. Pick the one you want.
   B = Fill selected nodes with selected color.
   N = Delete selected nodes.
 
