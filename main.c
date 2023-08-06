@@ -91,7 +91,7 @@ const unsigned char icon[] = { // 16, 16, 4
 // globals
 //*************************************
 const char appTitle[] = "Voxel Paint Pro";
-const char appVersion[] = "1.1";
+const char appVersion[] = "v1.1";
 char *basedir, *appdir;
 SDL_Window* wnd;
 SDL_GLContext glc;
@@ -2036,8 +2036,7 @@ void drawHud()
     SDL_FillRect(sHud, &(SDL_Rect){winw2-253, top-3, 506, 432}, 0x33FFFFFF);
     SDL_FillRect(sHud, &(SDL_Rect){winw2-250, top, 500, 426}, 0xCC000000);
     int a = drawText(sHud, "Voxel Paint Pro", winw2-36, top+11, 3);
-    a = drawText(sHud, "v", left+455, top+11, 4);
-    a = drawText(sHud, appVersion, a, top+11, 2);
+    a = drawText(sHud, appVersion, left+455, top+11, 4);
     a = drawText(sHud, "mrbid.github.io", left, top+11, 4);
     drawText(sHud, "Check console output for more information.", left, top+(11*3), 2);
     drawText(sHud, "The general idea is to use the Tab key to jump back and fourth to the 256 color", left, top+(11*5), 1);
