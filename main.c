@@ -91,7 +91,7 @@ const unsigned char icon[] = { // 16, 16, 4
 // globals
 //*************************************
 const char appTitle[] = "Voxel Paint Pro";
-const char appVersion[] = "1.0";
+const char appVersion[] = "1.1";
 char *basedir, *appdir;
 SDL_Window* wnd;
 SDL_GLContext glc;
@@ -114,6 +114,7 @@ float rtt = 0.f;        // replace timing trigger (for repeat replace)
 float rrsp = 0.3f;      // repeat replace speed
 uint fks = 0;           // F-Key state (fast mode toggle)
 uint ise = 0;           // is selecting
+uint itf = 0;           // is transforming (rotating)
 vec sp1d, sp1, sp2, sdif, sdifo, sp1o; // selecting vars
 float bigc = 0.f;       // big cursor start time
 
@@ -661,6 +662,112 @@ int forceVoxelArb(const vec v)
     }
     return -2; // no space left
 }
+void rotatePointed(const float x, const float y, const float z, const uint type)
+{
+    if(sdif.x == 0.f && sdif.y == 0.f && sdif.z == 0.f){return;} // no selection
+    // check pointed node is not within selection
+    uint good = 1;
+    //traceViewPath(0);
+    if(lray > -1)
+    {
+        float lx=0.f,ly=0.f,lz=0.f,hx=0.f,hy=0.f,hz=0.f;
+        if(sp1o.x < sp2.x){lx=sp1o.x;hx=sp2.x;}else{lx=sp2.x;hx=sp1o.x;}
+        if(sp1o.y < sp2.y){ly=sp1o.y;hy=sp2.y;}else{ly=sp2.y;hy=sp1o.y;}
+        if(sp1o.z < sp2.z){lz=sp1o.z;hz=sp2.z;}else{lz=sp2.z;hz=sp1o.z;}
+        if( g.voxels[lray].x >= lx && g.voxels[lray].x <= hx &&
+            g.voxels[lray].y >= ly && g.voxels[lray].y <= hy &&
+            g.voxels[lray].z >= lz && g.voxels[lray].z <= hz )
+        {
+            good = 0;
+        }
+    }
+    if(good == 1)
+    {
+        // copy nodes to new position, from sp1o to g.voxels[lray]
+        for(uint i = 0; i < g.num_voxels; i++)
+        {
+            if(g.voxels[i].w < 0.f){continue;}
+            float lx=0.f,ly=0.f,lz=0.f,hx=0.f,hy=0.f,hz=0.f;
+            if(sp1o.x < sp2.x){lx=sp1o.x;hx=sp2.x;}else{lx=sp2.x;hx=sp1o.x;}
+            if(sp1o.y < sp2.y){ly=sp1o.y;hy=sp2.y;}else{ly=sp2.y;hy=sp1o.y;}
+            if(sp1o.z < sp2.z){lz=sp1o.z;hz=sp2.z;}else{lz=sp2.z;hz=sp1o.z;}
+            if( g.voxels[i].x >= lx && g.voxels[i].x <= hx &&
+                g.voxels[i].y >= ly && g.voxels[i].y <= hy &&
+                g.voxels[i].z >= lz && g.voxels[i].z <= hz )
+            {
+                if(type == 0)
+                {
+                    forceVoxelArb((vec){g.voxels[lray].x+((g.voxels[i].y-sp1o.y)*x),
+                                        g.voxels[lray].y+((g.voxels[i].x-sp1o.x)*y),
+                                        g.voxels[lray].z+((g.voxels[i].z-sp1o.z)*z),
+                                        g.voxels[i].w});
+                }
+                else if(type == 1)
+                {
+                    forceVoxelArb((vec){g.voxels[lray].x+((g.voxels[i].y-sp1o.y)*x),
+                                        g.voxels[lray].y+((g.voxels[i].z-sp1o.z)*z),
+                                        g.voxels[lray].z+((g.voxels[i].x-sp1o.x)*y),
+                                        g.voxels[i].w});
+                }
+                else if(type == 2)
+                {
+                    forceVoxelArb((vec){g.voxels[lray].x+((g.voxels[i].x-sp1o.x)*y),
+                                        g.voxels[lray].y+((g.voxels[i].y-sp1o.y)*x),
+                                        g.voxels[lray].z+((g.voxels[i].z-sp1o.z)*z),
+                                        g.voxels[i].w});
+                }
+                else if(type == 3)
+                {
+                    forceVoxelArb((vec){g.voxels[lray].x+((g.voxels[i].x-sp1o.x)*y),
+                                        g.voxels[lray].y+((g.voxels[i].z-sp1o.z)*z),
+                                        g.voxels[lray].z+((g.voxels[i].y-sp1o.y)*x),
+                                        g.voxels[i].w});
+                }
+                else if(type == 4)
+                {
+                    forceVoxelArb((vec){g.voxels[lray].x+((g.voxels[i].z-sp1o.z)*z),
+                                        g.voxels[lray].y+((g.voxels[i].x-sp1o.x)*y),
+                                        g.voxels[lray].z+((g.voxels[i].y-sp1o.y)*x),
+                                        g.voxels[i].w});
+                }
+                else if(type == 5)
+                {
+                    forceVoxelArb((vec){g.voxels[lray].x+((g.voxels[i].z-sp1o.z)*z),
+                                        g.voxels[lray].y+((g.voxels[i].y-sp1o.y)*x),
+                                        g.voxels[lray].z+((g.voxels[i].x-sp1o.x)*y),
+                                        g.voxels[i].w});
+                }
+            }
+        }
+    }
+}
+void rotatePointedIndex(const uint c)
+{
+    if(c ==  0){rotatePointed( 1.f,  1.f,  1.f, 0);} //
+    if(c ==  1){rotatePointed(-1.f, -1.f, -1.f, 0);}
+    if(c ==  2){rotatePointed( 1.f,  1.f, -1.f, 0);}
+    if(c ==  3){rotatePointed(-1.f, -1.f,  1.f, 0);}
+    if(c ==  4){rotatePointed( 1.f,  1.f,  1.f, 1);} //
+    if(c ==  5){rotatePointed(-1.f, -1.f, -1.f, 1);}
+    if(c ==  6){rotatePointed( 1.f,  1.f, -1.f, 1);}
+    if(c ==  7){rotatePointed(-1.f, -1.f,  1.f, 1);}
+    if(c ==  8){rotatePointed( 1.f,  1.f,  1.f, 2);} //
+    if(c ==  9){rotatePointed(-1.f, -1.f, -1.f, 2);}
+    if(c == 10){rotatePointed( 1.f,  1.f, -1.f, 2);}
+    if(c == 11){rotatePointed(-1.f, -1.f,  1.f, 2);}
+    if(c == 12){rotatePointed( 1.f,  1.f,  1.f, 3);} //
+    if(c == 13){rotatePointed(-1.f, -1.f, -1.f, 3);}
+    if(c == 14){rotatePointed( 1.f,  1.f, -1.f, 3);}
+    if(c == 15){rotatePointed(-1.f, -1.f,  1.f, 3);}
+    if(c == 16){rotatePointed( 1.f,  1.f,  1.f, 4);} // L
+    if(c == 17){rotatePointed(-1.f, -1.f, -1.f, 4);}
+    if(c == 18){rotatePointed( 1.f,  1.f, -1.f, 4);}
+    if(c == 19){rotatePointed(-1.f, -1.f,  1.f, 4);}
+    if(c == 20){rotatePointed( 1.f,  1.f,  1.f, 5);} //
+    if(c == 21){rotatePointed(-1.f, -1.f, -1.f, 5);}
+    if(c == 22){rotatePointed( 1.f, -1.f,  1.f, 5);}
+    if(c == 23){rotatePointed(-1.f,  1.f, -1.f, 5);}
+}
 
 //*************************************
 // more utility functions
@@ -679,7 +786,7 @@ void drawHud();
 void doPerspective()
 {
     glViewport(0, 0, winw, winh);
-    if(winw > 500 && winh > 280)
+    if(winw > 500 && winh > 460)
     {
         SDL_FreeSurface(sHud);
         sHud = SDL_RGBA32Surface(winw, winh);
@@ -1114,49 +1221,50 @@ void main_loop()
                 {
                     g.grav = 1 - g.grav;
                 }
-                else if(event.key.keysym.sym == SDLK_f) // change movement speeds
+                else if(event.key.keysym.sym == SDLK_f) // toggle movement speeds
                 {
                     fks = 1 - fks;
                     if(fks){g.ms = g.cms;}
                        else{g.ms = g.lms;}
                 }
-                else if(event.key.keysym.sym == SDLK_1) // change movement speeds
+                else if(event.key.keysym.sym == SDLK_1)
                 {
                     g.ms = 9.3f;
                     if(fks){g.cms=g.ms;}else{g.lms=g.ms;}
                 }
-                else if(event.key.keysym.sym == SDLK_2) // change movement speeds
+                else if(event.key.keysym.sym == SDLK_2)
                 {
                     g.ms = 18.6f;
                     if(fks){g.cms=g.ms;}else{g.lms=g.ms;}
                 }
-                else if(event.key.keysym.sym == SDLK_3) // change movement speeds
+                else if(event.key.keysym.sym == SDLK_3)
                 {
                     g.ms = 37.2f;
                     if(fks){g.cms=g.ms;}else{g.lms=g.ms;}
                 }
-                else if(event.key.keysym.sym == SDLK_4) // change movement speeds
+                else if(event.key.keysym.sym == SDLK_4)
                 {
                     g.ms = 74.4f;
                     if(fks){g.cms=g.ms;}else{g.lms=g.ms;}
                 }
-                else if(event.key.keysym.sym == SDLK_5) // change movement speeds
+                else if(event.key.keysym.sym == SDLK_5)
                 {
                     g.ms = 148.8f;
                     if(fks){g.cms=g.ms;}else{g.lms=g.ms;}
                 }
-                else if(event.key.keysym.sym == SDLK_6) // change movement speeds
+                else if(event.key.keysym.sym == SDLK_6)
                 {
                     g.ms = 297.6f;
                     if(fks){g.cms=g.ms;}else{g.lms=g.ms;}
                 }
-                else if(event.key.keysym.sym == SDLK_7) // change movement speeds
+                else if(event.key.keysym.sym == SDLK_7)
                 {
                     g.ms = 595.2f;
                     if(fks){g.cms=g.ms;}else{g.lms=g.ms;}
                 }
                 else if(event.key.keysym.sym == SDLK_F1)
                 {
+                    
                     defaultState(0);
                     fks = 0;
                 }
@@ -1272,63 +1380,6 @@ void main_loop()
                         }
                     }
                 }
-                // else if(event.key.keysym.sym == SDLK_y) // flip/mirror rotate
-                // {
-                //     if(sdif.x == 0.f && sdif.y == 0.f && sdif.z == 0.f){break;} // no selection
-                    
-                //     // check pointed node is not within selection
-                //     uint good = 1;
-                //     traceViewPath(0);
-                //     if(lray > -1)
-                //     {
-                //         float lx=0.f,ly=0.f,lz=0.f,hx=0.f,hy=0.f,hz=0.f;
-                //         if(sp1o.x < sp2.x){lx=sp1o.x;hx=sp2.x;}else{lx=sp2.x;hx=sp1o.x;}
-                //         if(sp1o.y < sp2.y){ly=sp1o.y;hy=sp2.y;}else{ly=sp2.y;hy=sp1o.y;}
-                //         if(sp1o.z < sp2.z){lz=sp1o.z;hz=sp2.z;}else{lz=sp2.z;hz=sp1o.z;}
-                //         if( g.voxels[lray].x >= lx && g.voxels[lray].x <= hx &&
-                //             g.voxels[lray].y >= ly && g.voxels[lray].y <= hy &&
-                //             g.voxels[lray].z >= lz && g.voxels[lray].z <= hz )
-                //         {
-                //             good = 0;
-                //         }
-                //     }
-                //     if(good == 1)
-                //     {
-                //         // copy nodes to new position, from sp1o to g.voxels[lray]
-                //         for(uint i = 0; i < g.num_voxels; i++)
-                //         {
-                //             if(g.voxels[i].w < 0.f){continue;}
-                //             float lx=0.f,ly=0.f,lz=0.f,hx=0.f,hy=0.f,hz=0.f;
-                //             if(sp1o.x < sp2.x){lx=sp1o.x;hx=sp2.x;}else{lx=sp2.x;hx=sp1o.x;}
-                //             if(sp1o.y < sp2.y){ly=sp1o.y;hy=sp2.y;}else{ly=sp2.y;hy=sp1o.y;}
-                //             if(sp1o.z < sp2.z){lz=sp1o.z;hz=sp2.z;}else{lz=sp2.z;hz=sp1o.z;}
-                //             if( g.voxels[i].x >= lx && g.voxels[i].x <= hx &&
-                //                 g.voxels[i].y >= ly && g.voxels[i].y <= hy &&
-                //                 g.voxels[i].z >= lz && g.voxels[i].z <= hz )
-                //             {
-                //                 // forceVoxelArb((vec){g.voxels[lray].x+(g.voxels[i].x-sp1o.x),
-                //                 //                     g.voxels[lray].y+(g.voxels[i].z-sp1o.z),
-                //                 //                     g.voxels[lray].z+(g.voxels[i].y-sp1o.y),
-                //                 //                     g.voxels[i].w});
-
-                //                 forceVoxelArb((vec){g.voxels[lray].x+(g.voxels[i].y-sp1o.y),
-                //                                     g.voxels[lray].y-(g.voxels[i].x-sp1o.x),
-                //                                     g.voxels[lray].z+(g.voxels[i].z-sp1o.z),
-                //                                     g.voxels[i].w});
-
-                //                 // forceVoxelArb((vec){g.voxels[lray].x+(g.voxels[i].x-sp1o.x),
-                //                 //                     g.voxels[lray].y-(g.voxels[i].z-sp1o.z),
-                //                 //                     g.voxels[lray].z+(g.voxels[i].y-sp1o.y),
-                //                 //                     g.voxels[i].w});
-
-                //                 // forceVoxelArb((vec){g.voxels[lray].x+(g.voxels[i].y-sp1o.y),
-                //                 //                     g.voxels[lray].y+(g.voxels[i].x-sp1o.x),
-                //                 //                     g.voxels[lray].z+(g.voxels[i].z-sp1o.z),
-                //                 //                     g.voxels[i].w});
-                //             }
-                //         }
-                //     }
-                // }
                 else if(event.key.keysym.sym == SDLK_n)
                 {
                     if(sdif.x == 0.f && sdif.y == 0.f && sdif.z == 0.f){break;}
@@ -1345,6 +1396,30 @@ void main_loop()
                         {
                             g.voxels[i].w = -1.f;
                         }
+                    }
+                }
+                else if(event.key.keysym.sym == SDLK_t)
+                {
+                    if(sdif.x == 0.f && sdif.y == 0.f && sdif.z == 0.f){break;}
+                    static uint c = 0;
+                    traceViewPath(0);
+                    rotatePointedIndex(c);
+                    c++;
+                    if(c > 23){c = 0;}
+                }
+                else if(event.key.keysym.sym == SDLK_y)
+                {
+                    if(sdif.x == 0.f && sdif.y == 0.f && sdif.z == 0.f){break;}
+                    vec p = g.pp;
+                    vec pi = look_dir;
+                    const float ml = vDist(sp1o, sp2);
+                    vMulS(&pi, pi, vSumAbs(sdif));
+                    vInv(&pi);
+                    for(uint i = 0; i < 24; i++)
+                    {
+                        vAdd(&p, p, pi);
+                        lray = forceVoxelArb((vec){-p.x, -p.y, -p.z, g.st});
+                        rotatePointedIndex(i);
                     }
                 }
                 else if(event.key.keysym.sym == SDLK_F3)
@@ -1370,13 +1445,13 @@ void main_loop()
                     timestamp(tmp2);
                     if(fileExist("/usr/bin/7z") == 1)
                     {
-                        sprintf(cmd, "7z a -y -bsp0 -bso0 -r %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.7z %s/*", getenv("HOME"), tmp, g.num_voxels, appdir);
+                        sprintf(cmd, "/usr/bin/7z a -y -bsp0 -bso0 -r %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.7z %s/*", getenv("HOME"), tmp, g.num_voxels, appdir);
                         if(system(cmd) < 0){printf("system() failed: %s\n", cmd);}
                         printf("[%s] Exported data to: %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.7z\n", tmp2, getenv("HOME"), tmp, g.num_voxels);
                     }
                     else if(fileExist("/usr/bin/zip") == 1)
                     {
-                        sprintf(cmd, "zip -jq9 %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.zip %s/world.db %s/world.gz", getenv("HOME"), tmp, g.num_voxels, appdir, appdir);
+                        sprintf(cmd, "/usr/bin/zip -jq9 %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.zip %s/world.db %s/world.gz", getenv("HOME"), tmp, g.num_voxels, appdir, appdir);
                         if(system(cmd) < 0){printf("system() failed: %s\n", cmd);}
                         printf("[%s] Exported data to: %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.zip\n", tmp2, getenv("HOME"), tmp, g.num_voxels);
                     }
@@ -1956,27 +2031,112 @@ void drawHud()
     SDL_FillRect(sHud, &(SDL_Rect){0, 0, lenText(tmp)+8, 19}, 0xCC000000);
     drawText(sHud, tmp, 4, 4, 2);
     // center hud
-    const int top = winh2-(11*12);
+    const int top = winh2-(11*19);
     const int left = winw2-239;
-    SDL_FillRect(sHud, &(SDL_Rect){winw2-253, top-3, 506, 276}, 0x33FFFFFF);
-    SDL_FillRect(sHud, &(SDL_Rect){winw2-250, top, 500, 270}, 0xCC000000);
+    SDL_FillRect(sHud, &(SDL_Rect){winw2-253, top-3, 506, 432}, 0x33FFFFFF);
+    SDL_FillRect(sHud, &(SDL_Rect){winw2-250, top, 500, 426}, 0xCC000000);
     int a = drawText(sHud, "Voxel Paint Pro", winw2-36, top+11, 3);
     a = drawText(sHud, "v", left+455, top+11, 4);
     a = drawText(sHud, appVersion, a, top+11, 2);
     a = drawText(sHud, "mrbid.github.io", left, top+11, 4);
-    drawText(sHud, "Check console output for key mappings. This is a development version.", left, top+(11*3), 2);
-    drawText(sHud, "The general idea is to use the Tab key to jump back and fourth", left, top+(11*5), 1);
-    drawText(sHud, "to the 256 color palette when you need it. Just point at a color", left, top+(11*6), 1);
-    drawText(sHud, "and press Q or Mouse4 or Middle Click to select that color.", left, top+(11*7), 1);
-    a = drawText(sHud, "Todo: ", left, top+(11*9), 3);
-    drawText(sHud, "add rotations", a, top+(11*9), 1);
-    a = drawText(sHud, "Press ", left, top+(11*11), 1);
-    a = drawText(sHud, "ESCAPE", a, top+(11*11), 3);
-    drawText(sHud, " to release mouse focus.", a, top+(11*11), 1);
-    a = drawText(sHud, "This is the ", left, top+(11*23), 4);
-    a = drawText(sHud, "256", a, top+(11*23), 2);
-    a = drawText(sHud, " solid color version ", a, top+(11*23), 3);
-    drawText(sHud, "using the Aurora Palette.", a, top+(11*23), 4);
+    drawText(sHud, "Check console output for more information.", left, top+(11*3), 2);
+    drawText(sHud, "The general idea is to use the Tab key to jump back and fourth to the 256 color", left, top+(11*5), 1);
+    drawText(sHud, "palette when you need it. Just point at a color and press Q or Mouse4 or Middle Click", left, top+(11*6), 1);
+    drawText(sHud, "to select that color. Also Q and E work great together, clone and replace single voxels.", left, top+(11*7), 1);
+    a = drawText(sHud, "At any time when playing press ", left, top+(11*9), 1);
+    a = drawText(sHud, "ESCAPE", a, top+(11*9), 3);
+    drawText(sHud, " to release mouse focus back to this menu.", a, top+(11*9), 1);
+    a = drawText(sHud, "This is the ", left, top+(11*11), 4);
+    a = drawText(sHud, "256", a, top+(11*11), 2);
+    a = drawText(sHud, " solid color version ", a, top+(11*11), 3);
+    a = drawText(sHud, "using the ", a, top+(11*11), 4);
+    a = drawText(sHud, "Aurora Palette", a, top+(11*11), 2);
+    drawText(sHud, ".", a, top+(11*11), 4);
+
+    a = drawText(sHud, "WASD ", left, top+(11*13), 2);
+    drawText(sHud, "Move around based on relative orientation to X and Y.", a, top+(11*13), 1);
+    
+    a = drawText(sHud, "SPACE", left, top+(11*14), 2);
+    a = drawText(sHud, " + ", a, top+(11*14), 4);
+    a = drawText(sHud, "L-SHIFT ", a, top+(11*14), 2);
+    drawText(sHud, "Move up and down relative Z.", a, top+(11*14), 1);
+
+    a = drawText(sHud, "Left Click", left, top+(11*15), 2);
+    a = drawText(sHud, " or ", a, top+(11*15), 3);
+    a = drawText(sHud, "R-SHIFT ", a, top+(11*15), 2);
+    drawText(sHud, "Place node.", a, top+(11*15), 1);
+
+    a = drawText(sHud, "Right Click", left, top+(11*16), 2);
+    a = drawText(sHud, " or ", a, top+(11*16), 3);
+    a = drawText(sHud, "R-CTRL ", a, top+(11*16), 2);
+    drawText(sHud, "Delete node.", a, top+(11*16), 1);
+
+    a = drawText(sHud, "Tab ", left, top+(11*17), 2);
+    drawText(sHud, "Teleports you to and from the colour palette.", a, top+(11*17), 1);
+
+    a = drawText(sHud, "Q", left, top+(11*18), 2);
+    a = drawText(sHud, " or ", a, top+(11*18), 3);
+    a = drawText(sHud, "Middle Click", a, top+(11*18), 2);
+    a = drawText(sHud, " or ", a, top+(11*18), 3);
+    a = drawText(sHud, "Mouse4 ", a, top+(11*18), 2);
+    drawText(sHud, "Clone texture of pointed node.", a, top+(11*18), 1);
+
+    a = drawText(sHud, "E", left, top+(11*19), 2);
+    a = drawText(sHud, " or ", a, top+(11*19), 3);
+    a = drawText(sHud, "Mouse5 ", a, top+(11*19), 2);
+    drawText(sHud, "Replace pointed node.", a, top+(11*19), 1);
+
+    a = drawText(sHud, "R ", left, top+(11*20), 2);
+    drawText(sHud, "Places node at your current position.", a, top+(11*20), 1);
+
+    a = drawText(sHud, "F ", left, top+(11*21), 2);
+    drawText(sHud, "Toggle player fast speed on and off.", a, top+(11*21), 1);
+    
+    a = drawText(sHud, "1-7 ", left, top+(11*22), 2);
+    drawText(sHud, "Change move speed for selected fast state.", a, top+(11*22), 1);
+    
+    a = drawText(sHud, "X", left, top+(11*23), 2);
+    a = drawText(sHud, " + ", a, top+(11*23), 4);
+    a = drawText(sHud, "C", a, top+(11*23), 2);
+    a = drawText(sHud, " or ", a, top+(11*23), 3);
+    a = drawText(sHud, "Slash", a, top+(11*23), 2);
+    a = drawText(sHud, " + ", a, top+(11*23), 4);
+    a = drawText(sHud, "Quote ", a, top+(11*23), 2);
+    drawText(sHud, "Change texture of pointed node.", a, top+(11*23), 1);
+    
+    a = drawText(sHud, "G ", left, top+(11*24), 2);
+    drawText(sHud, "Toggle gravity on and off.", a, top+(11*24), 1);
+
+    a = drawText(sHud, "P ", left, top+(11*25), 2);
+    drawText(sHud, "Toggle pitch lock.", a, top+(11*25), 1);
+
+    a = drawText(sHud, "F1 ", left, top+(11*26), 2);
+    drawText(sHud, "Resets environment state back to default.", a, top+(11*26), 1);
+
+    a = drawText(sHud, "F3 ", left, top+(11*27), 2);
+    drawText(sHud, "Save. Will auto save on exit. Backup made if idle for 3 mins.", a, top+(11*27), 1);
+
+    a = drawText(sHud, "F8 ", left, top+(11*28), 2);
+    drawText(sHud, "Load. Will erase what you have done since the last save.", a, top+(11*28), 1);
+
+    a = drawText(sHud, "V ", left, top+(11*30), 2);
+    a = drawText(sHud, "Copies the selected nodes to the currently pointed position, the point you started", a, top+(11*30), 1);
+    a = drawText(sHud, "    the selection from is the point you will copy from at the new pointed location.", left, top+(11*31), 1);
+
+    a = drawText(sHud, "T ", left, top+(11*32), 2);
+    a = drawText(sHud, "Copies the selected nodes to the currently pointed position, but each time you", a, top+(11*32), 1);
+    drawText(sHud, "    press T it will iterate one of 24 rotations.", left, top+(11*33), 1);
+
+    a = drawText(sHud, "Y ", left, top+(11*34), 2);
+    a = drawText(sHud, "Shoots an array of the selected nodes in the direction you are facing in 24 different", a, top+(11*34), 1);
+    drawText(sHud, "    rotations. Pick the one you want.", left, top+(11*35), 1);
+
+    a = drawText(sHud, "B ", left, top+(11*36), 2);
+    a = drawText(sHud, "Fill selected nodes with selected color.", a, top+(11*36), 1);
+
+    a = drawText(sHud, "N ", left, top+(11*37), 2);
+    a = drawText(sHud, "Delete selected nodes.", a, top+(11*37), 1);
+
     // flip the new hud to gpu
     flipHud();
 }
@@ -2105,6 +2265,8 @@ int main(int argc, char** argv)
     printf("Middle Mouse Click & Drag or Mouse4 & Drag (or Q and drag) to select area.\n");
     printf("--------------------------------------------------------------------------\n");
     printf("V = Copies the selected nodes to the currently pointed position,\n    the point you started the selection from is the point you will\n    copy from at the new pointed location.\n");
+    printf("T = Copies the selected nodes to the currently pointed position,\n    but each time you press T it will iterate one of 24 rotations.\n");
+    printf("Y = Shoots an array of the selected nodes in the direction you are\n    facing in 24 different rotations. Pick the one you want.\n");
     printf("B = Fill selected nodes with selected color.\nN = Delete selected nodes.\n");
     printf("--------------------------------------------\n");
     printf("\n* Arrow Keys can be used to move the view around.\n");
@@ -2203,7 +2365,7 @@ int main(int argc, char** argv)
             timestamp(tmp);
             printf("[%s] %u fps, %u voxels\n", tmp, g_fps, g.num_voxels);
 #endif
-            if(focus_mouse == 0 && winw > 500 && winh > 250)
+            if(focus_mouse == 0 && winw > 500 && winh > 460)
                 drawHud();
             fps = 0;
             ft = t+3.f;
