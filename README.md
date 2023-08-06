@@ -1,7 +1,7 @@
 # Voxel Paint Pro
 Paint in 3D using solid shaded voxels.
 
-[![screenshot](https://dashboard.snapcraft.io/site_media/appmedia/2023/07/Screenshot_2023-07-29_03-11-25.png)](https://www.youtube.com/watch?v=op3-aAQyGIA)
+![screenshot](https://dashboard.snapcraft.io/site_media/appmedia/2023/07/Screenshot_2023-07-29_03-11-25.png)
 
 ## Snapcraft
 https://snapcraft.io/voxelpaintpro
