@@ -501,97 +501,6 @@ void traceViewPath(const uint face)
         }
     }
 }
-
-// #define RAY_DEPTH 300
-// #define RAY_STEP 0.125f
-// // shoot ray through voxels (returns voxel index and hit vector)
-// int ray(vec* hit_vec, const uint depth, const float stepsize, const vec start_pos)
-// {
-//     vec inc;
-//     vMulS(&inc, look_dir, stepsize);
-//     int hit = -1;
-//     vec rp = start_pos;
-//     for(uint i = 0; i < depth; i++)
-//     {
-//         vAdd(&rp, rp, inc);
-//         vec rb;
-//         rb.x = roundf(rp.x);
-//         rb.y = roundf(rp.y);
-//         rb.z = roundf(rp.z);
-//         for(int j = 0; j < g.num_voxels; j++)
-//         {
-//             if(g.voxels[j].w < 0.f){continue;}
-//             if(rb.x == g.voxels[j].x && rb.y == g.voxels[j].y && rb.z == g.voxels[j].z)
-//             {
-//                 *hit_vec = (vec){rp.x-rb.x, rp.y-rb.y, rp.z-rb.z};
-//                 hit = j;
-//                 break;
-//             }
-//         }
-//         if(hit > -1){break;}
-//     }
-//     return hit;
-// }
-// void traceViewPath(const uint face)
-// {
-//     g.pb.w = -1.f;
-//     vec rp = g.pb;
-//     lray = ray(&rp, RAY_DEPTH, RAY_STEP, ipp);
-//     if(lray > -1 && face == 1)
-//     {
-//         vNorm(&rp);
-//         vec diff = rp;
-//         rp = g.voxels[lray];
-
-//         vec fd = diff;
-//         fd.x = fabsf(diff.x);
-//         fd.y = fabsf(diff.y);
-//         fd.z = fabsf(diff.z);
-//         if(fd.x > fd.y && fd.x > fd.z)
-//         {
-//             diff.y = 0.f;
-//             diff.z = 0.f;
-//         }
-//         else if(fd.y > fd.x && fd.y > fd.z)
-//         {
-//             diff.x = 0.f;
-//             diff.z = 0.f;
-//         }
-//         else if(fd.z > fd.x && fd.z > fd.y)
-//         {
-//             diff.x = 0.f;
-//             diff.y = 0.f;
-//         }
-//         diff.x = roundf(diff.x);
-//         diff.y = roundf(diff.y);
-//         diff.z = roundf(diff.z);
-
-//         rp.x += diff.x;
-//         rp.y += diff.y;
-//         rp.z += diff.z;
-
-//         if(vSumAbs(diff) == 1.f)
-//         {
-//             uint rpif = 1;
-//             for(int i = 0; i < g.num_voxels; i++)
-//             {
-//                 if(g.voxels[i].w < 0.f){continue;}
-
-//                 if(rp.x == g.voxels[i].x && rp.y == g.voxels[i].y && rp.z == g.voxels[i].z)
-//                 {
-//                     rpif = 0;
-//                     break;
-//                 }
-//             }
-//             if(rpif == 1)
-//             {
-//                 g.pb   = rp;
-//                 g.pb.w = 1.f;
-//             }
-//         }
-//     }
-// }
-
 int placeVoxel(const float repeat_delay)
 {
     ptt = t+repeat_delay;
@@ -617,7 +526,6 @@ int placeVoxel(const float repeat_delay)
     }
     return -2; // no space left
 }
-
 int placeVoxelArb(const vec v)
 {
     uint free = -1;
@@ -667,7 +575,7 @@ void rotatePointed(const float x, const float y, const float z, const uint type)
     if(sdif.x == 0.f && sdif.y == 0.f && sdif.z == 0.f){return;} // no selection
     // check pointed node is not within selection
     uint good = 1;
-    //traceViewPath(0);
+    //traceViewPath(0); // not here, because sometimes we want to inject a fake lray
     if(lray > -1)
     {
         float lx=0.f,ly=0.f,lz=0.f,hx=0.f,hy=0.f,hz=0.f;
@@ -759,7 +667,7 @@ void rotatePointedIndex(const uint c)
     if(c == 13){rotatePointed(-1.f, -1.f, -1.f, 3);}
     if(c == 14){rotatePointed( 1.f,  1.f, -1.f, 3);}
     if(c == 15){rotatePointed(-1.f, -1.f,  1.f, 3);}
-    if(c == 16){rotatePointed( 1.f,  1.f,  1.f, 4);} // L
+    if(c == 16){rotatePointed( 1.f,  1.f,  1.f, 4);} //
     if(c == 17){rotatePointed(-1.f, -1.f, -1.f, 4);}
     if(c == 18){rotatePointed( 1.f,  1.f, -1.f, 4);}
     if(c == 19){rotatePointed(-1.f, -1.f,  1.f, 4);}
@@ -1264,7 +1172,6 @@ void main_loop()
                 }
                 else if(event.key.keysym.sym == SDLK_F1)
                 {
-                    
                     defaultState(0);
                     fks = 0;
                 }
@@ -1341,8 +1248,7 @@ void main_loop()
                 else if(event.key.keysym.sym == SDLK_v)
                 {
                     if(sdif.x == 0.f && sdif.y == 0.f && sdif.z == 0.f){break;} // no selection
-                    
-                    // check pointed node is not within selection
+                    // check pointed node is not within selection area
                     uint good = 1;
                     traceViewPath(0);
                     if(lray > -1)
