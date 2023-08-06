@@ -29,8 +29,6 @@ description: |
   B = Fill selected nodes with selected color.
   N = Delete selected nodes.
 
-  To multiselect click and drag with Middle Mouse or Q. Fill the nodes with B or delete them with N. Middle Scroll or X+C to change texture. V to paste selected nodes to pointed position.
-
   Arrow Keys can be used to move the view around.
   
   Your state is automatically saved on exit.
