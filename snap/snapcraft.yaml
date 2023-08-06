@@ -1,0 +1,75 @@
+name: voxelpaintpro
+base: core20
+version: '1.0'
+license: GPL-2.0-only
+summary: Paint in 3D using solid shaded Voxels!
+description: |
+  Mouse locks when you click on the game window, press ESCAPE to unlock the mouse.
+  
+  W,A,S,D = Move around based on relative orientation to X and Y.
+  SPACE + L-SHIFT = Move up and down relative Z.
+  Left Click / R-SHIFT = Place node.
+  Right Click / R-CTRL = Delete node.
+  Tab = Teleports you from colour palette to last position and vice-versa.
+  Q / Middle Click / Mouse4 = Clone texture of pointed node.
+  E / Mouse5 = Replace pointed node.
+  R = Places node at your current position.
+  F = Toggle player fast speed on and off.
+  1-7 = Change move speed for selected fast state.
+  X + C / Slash + Quote = Change texture of pointed node.
+  G = Gravity on/off.
+  P = Toggle pitch lock.
+  F1 = Resets environment state back to default.
+  F3 = Save. (auto saves on exit, backup made if idle for 3 mins.)
+  F8 = Load. (will erase what you have done since the last save)
+  F10 = Export the VoxelPaintPro data to a zip file in $HOME/EXPORTS.
+
+  Middle Mouse Click & Drag or Mouse4 & Drag (or Q and drag) to select area.
+  V = Copies the selected nodes to the currently pointed position, the point you started the selection from is the point you will copy from at the new pointed location.
+  B = Fill selected nodes with selected color.
+  N = Delete selected nodes.
+
+  To multiselect click and drag with Middle Mouse or Q. Fill the nodes with B or delete them with N. Middle Scroll or X+C to change texture. V to paste selected nodes to pointed position.
+
+  Arrow Keys can be used to move the view around.
+  
+  Your state is automatically saved on exit.
+
+  Sensitivity as the 1st command line parameter default is 0.003 `./voxelpaintpro 0.003`.
+
+grade: stable
+confinement: strict
+
+architectures:
+  - build-on: amd64
+    run-on: amd64
+  - build-on: arm64
+    run-on: arm64
+  - build-on: armhf
+    run-on: armhf
+
+apps:
+  voxelpaintpro:
+    extensions: [gnome-3-38]
+    command: voxelpaintpro
+    plugs:
+    - desktop
+    - desktop-legacy
+    - gsettings
+    - opengl
+    - wayland
+    - x11
+    - home
+    environment:
+      HOME: /home/$USER
+
+parts:
+  voxelpaintpro:
+    source: https://github.com/mrbid/voxelpaintpro
+    source-type: git
+    plugin: make
+    source-subdir: snap
+    build-packages:
+    - libsdl2-dev
+    stage-packages:
+    - libsdl2-2.0-0
