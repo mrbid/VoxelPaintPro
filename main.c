@@ -1403,7 +1403,7 @@ void main_loop()
                     if(sdif.x == 0.f && sdif.y == 0.f && sdif.z == 0.f){break;}
                     static uint c = 0;
                     traceViewPath(0);
-                    rotatePointedIndex(c);
+                    if(lray > -1){rotatePointedIndex(c);}
                     c++;
                     if(c > 23){c = 0;}
                 }
