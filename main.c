@@ -1970,10 +1970,13 @@ void drawHud()
     drawText(sHud, "and press Q or Mouse4 or Middle Click to select that color.", left, top+(11*7), 1);
     a = drawText(sHud, "Todo: ", left, top+(11*9), 3);
     drawText(sHud, "add rotations", a, top+(11*9), 1);
+    a = drawText(sHud, "Press ", left, top+(11*11), 1);
+    a = drawText(sHud, "ESCAPE", a, top+(11*11), 3);
+    drawText(sHud, " to release mouse focus.", a, top+(11*11), 1);
     a = drawText(sHud, "This is the ", left, top+(11*23), 4);
     a = drawText(sHud, "256", a, top+(11*23), 2);
     a = drawText(sHud, " solid color version ", a, top+(11*23), 3);
-    a = drawText(sHud, "using the Aurora Palette.", a, top+(11*23), 4);
+    drawText(sHud, "using the Aurora Palette.", a, top+(11*23), 4);
     // flip the new hud to gpu
     flipHud();
 }
