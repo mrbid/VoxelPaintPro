@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Voxel Paint Pro
+Comment=Paint in 3D using solid shaded voxels!
+StartupNotify=false
+Exec=voxelpaintpro
+Icon=${SNAP}/meta/gui/voxelpaintpro.png
+Terminal=false
+Type=Application
+Categories=Game;Graphics;
