@@ -1247,7 +1247,6 @@ void main_loop()
                     vInv(&p);
                     vec pi = look_dir;
                     vMulS(&pi, pi, 6.f);
-                    //vInv(&pi);
                     vAdd(&p, p, pi);
                     placeVoxelArb((vec){roundf(p.x), roundf(p.y), roundf(p.z), g.st});
                 }
