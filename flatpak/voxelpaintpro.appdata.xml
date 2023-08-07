@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application>
+	<id type="desktop">voxelpaintpro.desktop</id>
+	<metadata_license>CC-BY-4.0</metadata_license>
+	<project_license>GPL-2.0-only</project_license>
+	<name>Voxel Paint Pro</name>
+	<summary>Paint in 3D using solid shaded Voxels!</summary>
+	<description>
+		<p>Mouse locks when you click on the game window, press ESCAPE to unlock the mouse.</p>
+		<ul>
+			<li>W,A,S,D = Move around based on relative orientation to X and Y.</li>
+			<li>SPACE + L-SHIFT = Move up and down relative Z.</li>
+			<li>Left Click / R-SHIFT = Place node.</li>
+			<li>Right Click / R-CTRL = Delete node.</li>
+			<li>Tab = Teleports you from colour palette to last position and vice-versa.</li>
+			<li>Q / Middle Click / Mouse4 = Clone texture of pointed node.</li>
+			<li>E / Mouse5 = Replace pointed node.</li>
+			<li>R = Places node at your current position.</li>
+			<li>F = Toggle player fast speed on and off.</li>
+			<li>1-7 = Change move speed for selected fast state.</li>
+			<li>X + C / Slash + Quote = Change texture of pointed node.</li>
+			<li>G = Gravity on/off.</li>
+			<li>P = Toggle pitch lock.</li>
+			<li>F1 = Resets environment state back to default.</li>
+			<li>F3 = Save. (auto saves on exit or idle for more than 3 minutes)</li>
+			<li>F8 = Load. (will erase what you have done since the last save)</li>
+			<li>F10 = Export the VoxelPaint data to a zip file in $HOME/EXPORTS.</li>
+		</ul>
+		<ul>
+			<li>Middle Mouse Click & Drag or Mouse4 & Drag (or Q and drag) to select area.</li>
+			<li>V = Copies the selected nodes to the currently pointed position, the point you started the selection from is the point you will copy from at the new pointed location.</li>
+			<li>T = Copies the selected nodes to the currently pointed position, but each time you press T it will iterate one of 24 rotations.</li>
+			<li>Y = Shoots an array of the selected nodes in the direction you are facing in 24 different rotations. Pick the one you want.</li>
+			<li>B = Fill selected nodes with selected color.</li>
+			<li>N = Delete selected nodes.</li>
+		</ul>
+		<p>Arrow Keys can be used to move the view around.</p>
+		<p>Your state is automatically saved on exit.</p>
+		<p>Sensitivity as the 1st command line parameter default is 0.003 `./voxelpaintpro 0.003`.</p>
+	</description>
+	<screenshots>
+		<screenshot>https://dashboard.snapcraft.io/site_media/appmedia/2023/08/Screenshot_2023-08-06_07-36-03.png</screenshot>
+		<screenshot>https://dashboard.snapcraft.io/site_media/appmedia/2023/08/Screenshot_2023-08-06_08-18-59.png</screenshot>
+	</screenshots>
+	<url type="homepage">https://github.com/mrbid/VoxelPaintPro</url>
+	<releases>
+		<release version="1.1" date="2023-08-07" />
+	</releases>
+	<content_rating type="oars-1.0" />
+</application>
