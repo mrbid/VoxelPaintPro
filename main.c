@@ -1243,7 +1243,13 @@ void main_loop()
                 }
                 else if(event.key.keysym.sym == SDLK_r)
                 {
-                    placeVoxelArb((vec){roundf(-g.pp.x), roundf(-g.pp.y), roundf(-g.pp.z), g.st});
+                    vec p = g.pp;
+                    vInv(&p);
+                    vec pi = look_dir;
+                    vMulS(&pi, pi, 6.f);
+                    //vInv(&pi);
+                    vAdd(&p, p, pi);
+                    placeVoxelArb((vec){roundf(p.x), roundf(p.y), roundf(p.z), g.st});
                 }
                 else if(event.key.keysym.sym == SDLK_v)
                 {
@@ -1318,7 +1324,6 @@ void main_loop()
                     if(sdif.x == 0.f && sdif.y == 0.f && sdif.z == 0.f){break;}
                     vec p = g.pp;
                     vec pi = look_dir;
-                    const float ml = vDist(sp1o, sp2);
                     vMulS(&pi, pi, vSumAbs(sdif));
                     vInv(&pi);
                     for(uint i = 0; i < 24; i++)
