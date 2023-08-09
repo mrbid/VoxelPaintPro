@@ -1355,15 +1355,15 @@ void main_loop()
                     timestamp(tmp2);
                     if(fileExist("/usr/bin/7z") == 1)
                     {
-                        sprintf(cmd, "/usr/bin/7z a -y -bsp0 -bso0 -r %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.7z %s/*", getenv("HOME"), tmp, g.num_voxels, appdir);
+                        sprintf(cmd, "/usr/bin/7z a -y -bsp0 -bso0 -r %s/EXPORTS/VoxelPaintPro_exports/voxelpaintpro_%s_%u.7z %s/*", getenv("HOME"), tmp, g.num_voxels, appdir);
                         if(system(cmd) < 0){printf("system() failed: %s\n", cmd);}
-                        printf("[%s] Exported data to: %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.7z\n", tmp2, getenv("HOME"), tmp, g.num_voxels);
+                        printf("[%s] Exported data to: %s/EXPORTS/VoxelPaintPro_exports/voxelpaintpro_%s_%u.7z\n", tmp2, getenv("HOME"), tmp, g.num_voxels);
                     }
                     else if(fileExist("/usr/bin/zip") == 1)
                     {
-                        sprintf(cmd, "/usr/bin/zip -jq9 %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.zip %s/world.db %s/world.gz", getenv("HOME"), tmp, g.num_voxels, appdir, appdir);
+                        sprintf(cmd, "/usr/bin/zip -jq9 %s/EXPORTS/VoxelPaintPro_exports/voxelpaintpro_%s_%u.zip %s/world.db %s/world.gz", getenv("HOME"), tmp, g.num_voxels, appdir, appdir);
                         if(system(cmd) < 0){printf("system() failed: %s\n", cmd);}
-                        printf("[%s] Exported data to: %s/EXPORTS/VoxelPaintPro_exports/voxelpaint_%s_%u.zip\n", tmp2, getenv("HOME"), tmp, g.num_voxels);
+                        printf("[%s] Exported data to: %s/EXPORTS/VoxelPaintPro_exports/voxelpaintpro_%s_%u.zip\n", tmp2, getenv("HOME"), tmp, g.num_voxels);
                     }
                     else
                     {
