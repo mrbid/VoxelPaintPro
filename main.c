@@ -159,7 +159,7 @@ typedef struct
     float sens; // mouse sensitivity
     float xrot; // camera x-axis rotation
     float yrot; // camera y-axis rotation
-    float st;   // selected texture
+    float st;   // selected color
     float ms;   // player move speed
     float cms;  // custom move speed (high)
     float lms;  // custom move speed (low)
@@ -167,7 +167,7 @@ typedef struct
     uchar plock;// pitchlock on/off toggle
     uchar r1, r2;
     uint num_voxels;
-    vec voxels[max_voxels]; // x,y,z,w (w = texture_id)
+    vec voxels[max_voxels]; // x,y,z,w (w = color_id)
 }
 game_state;
 game_state g; // ~67mb
@@ -505,7 +505,7 @@ int placeVoxel(const float repeat_delay)
 {
     ptt = t+repeat_delay;
 
-    if(g.pb.w == -1){return -1;} // place block invalid texture (failed ray indication)
+    if(g.pb.w == -1){return -1;} // place block invalid color (failed ray indication)
 
     for(uint i = 256; i < g.num_voxels; i++)
     {
@@ -1002,7 +1002,7 @@ void main_loop()
                     focus_mouse = 0;
                     SDL_ShowCursor(1);
                 }
-                else if(event.key.keysym.sym == SDLK_q) // clone pointed voxel texture
+                else if(event.key.keysym.sym == SDLK_q) // clone pointed voxel color
                 {
                     if(ise == 0)
                     {
@@ -1408,7 +1408,7 @@ void main_loop()
                 else if(event.key.keysym.sym == SDLK_RSHIFT){ptt = 0.f;}
                 else if(event.key.keysym.sym == SDLK_RCTRL){dtt = 0.f;}
                 else if(event.key.keysym.sym == SDLK_e){rtt = 0.f;}
-                else if(event.key.keysym.sym == SDLK_q) // clone pointed voxel texture
+                else if(event.key.keysym.sym == SDLK_q) // clone pointed voxel color
                 {
                     traceViewPath(0);
                     if(lray > -1)
@@ -1988,7 +1988,7 @@ void drawHud()
     a = drawText(sHud, "Middle Click", a, top+(11*18), 2);
     a = drawText(sHud, " or ", a, top+(11*18), 3);
     a = drawText(sHud, "Mouse4 ", a, top+(11*18), 2);
-    drawText(sHud, "Clone texture of pointed node.", a, top+(11*18), 1);
+    drawText(sHud, "Clone color of pointed node.", a, top+(11*18), 1);
 
     a = drawText(sHud, "E", left, top+(11*19), 2);
     a = drawText(sHud, " or ", a, top+(11*19), 3);
@@ -2011,7 +2011,7 @@ void drawHud()
     a = drawText(sHud, "Slash", a, top+(11*23), 2);
     a = drawText(sHud, " + ", a, top+(11*23), 4);
     a = drawText(sHud, "Quote ", a, top+(11*23), 2);
-    drawText(sHud, "Change texture of pointed node.", a, top+(11*23), 1);
+    drawText(sHud, "Change color of pointed node.", a, top+(11*23), 1);
     
     a = drawText(sHud, "G ", left, top+(11*24), 2);
     drawText(sHud, "Toggle gravity on and off.", a, top+(11*24), 1);
@@ -2155,12 +2155,12 @@ int main(int argc, char** argv)
     printf("Left Click / R-SHIFT = Place node.\n");
     printf("Right Click / R-CTRL = Delete node.\n");
     printf("Tab = Teleports you from colour palette to last position and vice-versa.\n");
-    printf("Q / Middle Click / Mouse4 = Clone texture of pointed node.\n");
+    printf("Q / Middle Click / Mouse4 = Clone color of pointed node.\n");
     printf("E / Mouse5 = Replace pointed node.\n");
     printf("R = Places node at your current position.\n");
     printf("F = Toggle player fast speed on and off.\n");
     printf("1-7 = Change move speed for selected fast state.\n");
-    printf("X + C / Slash + Quote = Change texture of pointed node.\n");
+    printf("X + C / Slash + Quote = Change color of pointed node.\n");
     printf("G = Gravity on/off.\n");
     printf("P = Toggle pitch lock.\n");
     printf("F1 = Resets environment state back to default.\n");
