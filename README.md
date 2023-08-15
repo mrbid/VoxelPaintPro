@@ -38,3 +38,6 @@ https://snapcraft.io/voxelpaintpro
 * Y = Shoots an array of the selected nodes in the direction you are facing in 24 different rotations. Pick the one you want.
 * B = Fill selected nodes with selected color.
 * N = Delete selected nodes.
+
+## Known Bugs
+* Sometimes when you copy a selection a single line of nodes on the edge of the selection will not be copied, this is easy to fix my doing a second copy or placing two nodes around the selection area using (R) to give the selection area a bit of margin/border.
