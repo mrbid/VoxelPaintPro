@@ -1,7 +1,10 @@
 # Voxel Paint Pro
-Paint in 3D using solid shaded voxels.
+Paint in 3D using solid shaded voxels. (using the [Aurora 256 Color Palette](https://lospec.com/palette-list/aurora))
 
 ![screenshot](https://dashboard.snapcraft.io/site_media/appmedia/2023/08/Screenshot_2023-08-06_07-36-03.png)
+
+## Flathub
+https://flathub.org/apps/com.voxdsp.VoxelPaintPro
 
 ## Snapcraft
 https://snapcraft.io/voxelpaintpro
