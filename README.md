@@ -20,6 +20,7 @@ https://snapcraft.io/voxelpaintpro
 * SPACE + L-SHIFT = Move up and down relative Z.
 * Left Click / R-SHIFT = Place node.
 * Right Click / R-CTRL = Delete node.
+* Middle Scroll = Change selected color.
 * Tab = Teleports you from colour palette to last position and vice-versa.
 * Q / Middle Click / Mouse4 = Clone texture of pointed node.
 * E / Mouse5 = Replace pointed node.
@@ -43,4 +44,4 @@ https://snapcraft.io/voxelpaintpro
 * N = Delete selected nodes.
 
 ## Known Bugs
-* Sometimes when you copy a selection a single line of nodes on the edge of the selection will not be copied, this is easy to fix my doing a second copy or placing two nodes around the selection area using (R) to give the selection area a bit of margin/border.
+* Sometimes when a selection is clones and pasted a single line of nodes on the edge of the selection will not be copied, this is easy to fix by doing a second copy or placing two nodes around the selection area using (R) to give the selection area a margin/border.
