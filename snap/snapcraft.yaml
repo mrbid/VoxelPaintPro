@@ -50,7 +50,7 @@ architectures:
 
 apps:
   voxelpaintpro:
-    extensions: [gnome-3-38]
+    extensions: [gnome]
     command: voxelpaintpro
     plugs:
     - desktop
