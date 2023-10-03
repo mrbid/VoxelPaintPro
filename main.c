@@ -100,7 +100,7 @@ int winw = 1024, winh = 768;
 int winw2 = 512, winh2 = 384;
 float ww, wh;
 float aspect, t = 0.f;
-uint drag=0,size=0,dsx=0,dsy=0;
+uint size=0,dsx=0,dsy=0;
 int mx=0, my=0, xd=0, yd=0, md=0;
 uint g_fps = 0;
 uint ks[10] = {0};      // keystate
@@ -145,6 +145,13 @@ forceinline float fTime(){return ((float)SDL_GetTicks())*0.001f;}
         return (stat(file, &st) == 0);
     }
 #endif
+static SDL_HitTestResult SDLCALL hitTest(SDL_Window *window, const SDL_Point *pt, void *data)
+{
+    if( SDL_PointInRect(pt, &(SDL_Rect){30, 0, winw2-75, 22}) == SDL_TRUE ||
+        SDL_PointInRect(pt, &(SDL_Rect){winw2+80, 0, winw2-110, 22}) == SDL_TRUE)
+        return SDL_HITTEST_DRAGGABLE;
+    return SDL_HITTEST_NORMAL;
+}
 
 //*************************************
 // game state functions
@@ -1001,22 +1008,6 @@ void main_loop()
     }
 
     // window decor stuff
-    if(drag == 1)
-    {
-        static int lx=0, ly=0;
-        static float lt = 0;
-        if(t > lt)
-        {
-            if(lx != mx || ly != my)
-            {
-                int x,y;
-                SDL_GetWindowPosition(wnd, &x, &y);
-                SDL_SetWindowPosition(wnd, x+(mx-dsx), y+(my-dsy));
-                lx = mx, ly = my;
-            }
-            lt = t+0.03f;
-        }
-    }
     if(size == 1)
     {
         static float lt = 0;
@@ -1588,9 +1579,8 @@ void main_loop()
             {
                 if(event.button.button == SDL_BUTTON_LEFT)
                 {
-                    if(drag == 1 || size == 1)
+                    if(size == 1)
                     {
-                        drag=0;
                         size=0;
                         SDL_GetWindowSize(wnd, &winw, &winh);
                         WOX_POP(winw, winh);
@@ -1651,7 +1641,6 @@ void main_loop()
                             {
                                 SDL_MaximizeWindow(wnd);
                                 maxed = 1;
-                                drag = 0;
                                 size = 0;
                                 llct = t;
                                 break;
@@ -1660,7 +1649,6 @@ void main_loop()
                             {
                                 SDL_RestoreWindow(wnd);
                                 maxed = 0;
-                                drag = 0;
                                 size = 0;
                                 llct = t;
                                 break;
@@ -1691,7 +1679,6 @@ void main_loop()
                             }
 
                             dsx = mx, dsy = my;
-                            drag=1;
                             SDL_CaptureMouse(SDL_TRUE);
                             break;
                         }
@@ -2095,6 +2082,9 @@ void drawHud()
     drawText(sHud, "r", winw-9, winh-14, 3);
     drawText(sHud, "r", winw-8, winh-13, 0);
 
+    SDL_FillRect(sHud, &(SDL_Rect){30, 3, winw2-75, 13}, 0x77FFFF00);
+    SDL_FillRect(sHud, &(SDL_Rect){winw2+80, 3, winw2-110, 13}, 0x77FFFF00);
+
     // pixel crosshair
     // setpixel(sHud, winw2, winh2, 0xFFFFFF00);
     // setpixel(sHud, winw2+1, winh2, 0xFFFFFF00);
@@ -2266,6 +2256,9 @@ int main(int argc, char** argv)
         printf("ERROR: SDL_GL_CreateContext(): %s\n", SDL_GetError());
         return 1;
     }
+
+    // callback for custom decor
+    SDL_SetWindowHitTest(wnd, hitTest, NULL);
 
     // set icon
     s_icon = surfaceFromData((Uint32*)&icon, 16, 16);
