@@ -148,7 +148,7 @@ forceinline float fTime(){return ((float)SDL_GetTicks())*0.001f;}
 static SDL_HitTestResult SDLCALL hitTest(SDL_Window *window, const SDL_Point *pt, void *data)
 {
     if( SDL_PointInRect(pt, &(SDL_Rect){40, 0, winw2-85, 22}) == SDL_TRUE ||
-        SDL_PointInRect(pt, &(SDL_Rect){winw2+60, 0, winw2-102, 22}) == SDL_TRUE)
+        SDL_PointInRect(pt, &(SDL_Rect){winw2+80, 0, winw2-122, 22}) == SDL_TRUE)
         return SDL_HITTEST_DRAGGABLE;
     return SDL_HITTEST_NORMAL;
 }
