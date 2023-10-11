@@ -100,7 +100,7 @@ int winw = 1024, winh = 768;
 int winw2 = 512, winh2 = 384;
 float ww, wh;
 float aspect, t = 0.f;
-uint size=0,dsx=0,dsy=0;
+uint maxed=0,size=0,dsx=0,dsy=0;
 int mx=0, my=0, xd=0, yd=0, md=0;
 uint g_fps = 0;
 uint ks[10] = {0};      // keystate
@@ -147,8 +147,8 @@ forceinline float fTime(){return ((float)SDL_GetTicks())*0.001f;}
 #endif
 static SDL_HitTestResult SDLCALL hitTest(SDL_Window *window, const SDL_Point *pt, void *data)
 {
-    if( SDL_PointInRect(pt, &(SDL_Rect){30, 0, winw2-75, 22}) == SDL_TRUE ||
-        SDL_PointInRect(pt, &(SDL_Rect){winw2+80, 0, winw2-110, 22}) == SDL_TRUE)
+    if( SDL_PointInRect(pt, &(SDL_Rect){40, 0, winw2-85, 22}) == SDL_TRUE ||
+        SDL_PointInRect(pt, &(SDL_Rect){winw2+60, 0, winw2-102, 22}) == SDL_TRUE)
         return SDL_HITTEST_DRAGGABLE;
     return SDL_HITTEST_NORMAL;
 }
@@ -1030,11 +1030,47 @@ void main_loop()
         }
     }
     
+    static uint last_focus_mouse = 0;
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
         switch(event.type)
         {
+            case SDL_WINDOWEVENT:
+            {
+                switch(event.window.event)
+                {
+                    case SDL_WINDOWEVENT_FOCUS_GAINED:
+                    {
+                        focus_mouse = last_focus_mouse;
+                        SDL_ShowCursor(focus_mouse ? SDL_DISABLE : SDL_ENABLE);
+                        if(focus_mouse == 1)
+                        {
+                            SDL_GetRelativeMouseState(&xd, &yd);
+                            SDL_SetRelativeMouseMode(SDL_TRUE);
+                        }
+                    }
+                    break;
+
+                    case SDL_WINDOWEVENT_FOCUS_LOST:
+                    {
+                        last_focus_mouse = focus_mouse;
+                        focus_mouse = 0;
+                        SDL_ShowCursor(SDL_ENABLE);
+                        SDL_GetRelativeMouseState(&xd, &yd);
+                        SDL_SetRelativeMouseMode(SDL_FALSE);
+                    }
+                    break;
+
+                    case SDL_WINDOWEVENT_RESIZED:
+                    {
+                        WOX_POP(event.window.data1, event.window.data2);
+                    }
+                    break;
+                }
+            }
+            break;
+            
             case SDL_KEYDOWN:
             {
                 if(event.key.keysym.sym == SDLK_ESCAPE) // unlock mouse focus
@@ -1637,10 +1673,10 @@ void main_loop()
                     {
                         if(llct != 0.f && t-llct < 0.3f)
                         {
-                            if(maxed == 0)
+                            maxed = 1 - maxed;
+                            if(maxed == 1)
                             {
                                 SDL_MaximizeWindow(wnd);
-                                maxed = 1;
                                 size = 0;
                                 llct = t;
                                 break;
@@ -1648,7 +1684,6 @@ void main_loop()
                             else
                             {
                                 SDL_RestoreWindow(wnd);
-                                maxed = 0;
                                 size = 0;
                                 llct = t;
                                 break;
@@ -1662,9 +1697,16 @@ void main_loop()
                                 WOX_QUIT();
                                 break;
                             }
-                            else if(mx < 28)
+                            else if(mx < 24)
                             {
                                 SDL_MinimizeWindow(wnd);
+                                break;
+                            }
+                            else if(mx < 40)
+                            {
+                                maxed = 1 - maxed;
+                                if(maxed == 1){SDL_MaximizeWindow(wnd);}
+                                else{SDL_RestoreWindow(wnd);}
                                 break;
                             }
                             else if(mx > winw-14)
@@ -1672,9 +1714,16 @@ void main_loop()
                                 WOX_QUIT();
                                 break;
                             }
-                            else if(mx > winw-28)
+                            else if(mx > winw-24)
                             {
                                 SDL_MinimizeWindow(wnd);
+                                break;
+                            }
+                            else if(mx > winw-40)
+                            {
+                                maxed = 1 - maxed;
+                                if(maxed == 1){SDL_MaximizeWindow(wnd);}
+                                else{SDL_RestoreWindow(wnd);}
                                 break;
                             }
 
@@ -1755,19 +1804,6 @@ void main_loop()
                     }
                 }
                 idle = t;
-            }
-            break;
-
-            case SDL_WINDOWEVENT:
-            {
-                if(event.window.event == SDL_WINDOWEVENT_RESIZED)
-                {
-                    winw = event.window.data1;
-                    winh = event.window.data2;
-                    winw2 = winw/2;
-                    winh2 = winh/2;
-                    doPerspective();
-                }
             }
             break;
 
@@ -2064,6 +2100,10 @@ void main_loop()
 }
 void drawHud()
 {
+    // updated maxed state
+    const uint flags = SDL_GetWindowFlags(wnd);
+    if(flags & SDL_WINDOW_MAXIMIZED){maxed = 1;}else{maxed = 0;}
+
     // window title
     SDL_FillRect(sHud, &(SDL_Rect){0, 0, winw, 19}, 0xDDFFFF00);
     SDL_FillRect(sHud, &(SDL_Rect){1, 1, winw-2, 17}, 0xBB777700);
@@ -2074,15 +2114,39 @@ void drawHud()
     drawText(sHud, "Voxel Paint Pro", winw2-25, 4, 0);
     drawText(sHud, "X -", 5, 3, 3);
     drawText(sHud, "X -", 4, 4, 0);
+    if(maxed == 0)
+    {
+        SDL_FillRect(sHud, &(SDL_Rect){25, 3, 11, 11}, 0xFF00BFFF);
+        SDL_FillRect(sHud, &(SDL_Rect){24, 4, 11, 11}, 0xFF000000);
+        SDL_FillRect(sHud, &(SDL_Rect){25, 5, 9, 9}, 0xBBa0b010);
+    }
+    else
+    {
+        SDL_FillRect(sHud, &(SDL_Rect){24, 4, 11, 11}, 0xFF00BFFF);
+        SDL_FillRect(sHud, &(SDL_Rect){23, 3, 11, 11}, 0xFF000000);
+        SDL_FillRect(sHud, &(SDL_Rect){24, 4, 9, 9}, 0xBBa0b010);
+    }
     drawText(sHud, "- X", winw-23, 3, 3);
     drawText(sHud, "- X", winw-22, 4, 0);
+    if(maxed == 0)
+    {
+        SDL_FillRect(sHud, &(SDL_Rect){winw-38, 3, 11, 11}, 0xFF00BFFF);
+        SDL_FillRect(sHud, &(SDL_Rect){winw-37, 4, 11, 11}, 0xFF000000);
+        SDL_FillRect(sHud, &(SDL_Rect){winw-36, 5, 9, 9}, 0xBBa0b010);
+    }
+    else
+    {
+        SDL_FillRect(sHud, &(SDL_Rect){winw-37, 4, 11, 11}, 0xFF00BFFF);
+        SDL_FillRect(sHud, &(SDL_Rect){winw-36, 3, 11, 11}, 0xFF000000);
+        SDL_FillRect(sHud, &(SDL_Rect){winw-35, 4, 9, 9}, 0xBBa0b010);
+    }
     SDL_FillRect(sHud, &(SDL_Rect){winw-15, winh-15, 15, 15}, 0xDDFFFF00);
     SDL_FillRect(sHud, &(SDL_Rect){winw-14, winh-14, 13, 13}, 0xBB777700);
     drawText(sHud, "r", winw-9, winh-14, 3);
     drawText(sHud, "r", winw-8, winh-13, 0);
 
-    SDL_FillRect(sHud, &(SDL_Rect){30, 3, winw2-75, 13}, 0x77FFFF00);
-    SDL_FillRect(sHud, &(SDL_Rect){winw2+80, 3, winw2-110, 13}, 0x77FFFF00);
+    SDL_FillRect(sHud, &(SDL_Rect){40, 3, winw2-85, 13}, 0x77FFFF00);
+    SDL_FillRect(sHud, &(SDL_Rect){winw2+80, 3, winw2-122, 13}, 0x77FFFF00);
 
     // pixel crosshair
     // setpixel(sHud, winw2, winh2, 0xFFFFFF00);
