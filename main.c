@@ -147,6 +147,7 @@ forceinline float fTime(){return ((float)SDL_GetTicks())*0.001f;}
 #endif
 static SDL_HitTestResult SDLCALL hitTest(SDL_Window *window, const SDL_Point *pt, void *data)
 {
+    if(focus_mouse == 1){return SDL_HITTEST_NORMAL;}
     if( SDL_PointInRect(pt, &(SDL_Rect){40, 0, winw2-85, 22}) == SDL_TRUE ||
         SDL_PointInRect(pt, &(SDL_Rect){winw2+80, 0, winw2-122, 22}) == SDL_TRUE)
         return SDL_HITTEST_DRAGGABLE;
@@ -2053,7 +2054,7 @@ void main_loop()
                                                             , 10 * 3 * sizeof(float), GL_STATIC_DRAW);
         const vec v = (vec){-look_dir.x, -look_dir.y, -look_dir.z};
         esRebind(GL_ARRAY_BUFFER,         &mdlVoxel.nid, &(vec[]){v.x,v.y,v.z, v.x,v.y,v.z, v.x,v.y,v.z, v.x,v.y,v.z, v.x,v.y,v.z, v.x,v.y,v.z, v.x,v.y,v.z, v.x,v.y,v.z, v.x,v.y,v.z, v.x,v.y,v.z}, 10 * 3 * sizeof(float),  GL_STATIC_DRAW);
-        esRebind(GL_ELEMENT_ARRAY_BUFFER, &mdlVoxel.iid, &(GLbyte[]){0,1,2,3,0,4,5,6,7,8,5,1,2,6,7,3}, 16,  GL_STATIC_DRAW); // could probably be reduced more
+        esRebind(GL_ELEMENT_ARRAY_BUFFER, &mdlVoxel.iid, &(GLbyte[]){0,1,2,3,0,4,5,6,7,8,5,1,2,6,7,3}, 16, GL_STATIC_DRAW); // could probably be reduced more
         glDrawElements(GL_LINE_STRIP, voxel_numind, GL_UNSIGNED_BYTE, 0);
         esRebind(GL_ARRAY_BUFFER,         &mdlVoxel.vid, voxel_vertices, sizeof(voxel_vertices), GL_STATIC_DRAW);
         esRebind(GL_ARRAY_BUFFER,         &mdlVoxel.nid, voxel_normals,  sizeof(voxel_normals),  GL_STATIC_DRAW);
@@ -2417,9 +2418,9 @@ int main(int argc, char** argv)
 //*************************************
 // projection & compile & link shader program
 //*************************************
-    doPerspective();
     makeVoxel();
     makeHud();
+    doPerspective();
 
 //*************************************
 // configure render options
