@@ -3,7 +3,7 @@ Paint in 3D using solid shaded voxels. *(using the [Aurora 256 Color Palette](ht
 
 ![screenshot](https://dashboard.snapcraft.io/site_media/appmedia/2023/08/Screenshot_2023-08-06_07-36-03.png)
 
-### Available on [Flathub](https://flathub.org/apps/com.voxdsp.VoxelPaintPro) or [Snapcraft](https://snapcraft.io/voxelpaintpro).
+### Available on [Flathub](https://flathub.org/apps/com.voxdsp.VoxelPaintPro) and [Snapcraft](https://snapcraft.io/voxelpaintpro).
 
 ## Info
 * Mouse locks when you click on the game window, press ESCAPE to unlock the mouse.
